@@ -1,10 +1,11 @@
-const CACHE = "frequencia-v1";
+const CACHE = "frequencia-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./db.js",
   "./app.js",
+  "./vendor/qrcode.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

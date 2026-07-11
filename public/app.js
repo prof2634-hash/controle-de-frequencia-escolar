@@ -597,7 +597,48 @@ function importarDados(file) {
   reader.readAsText(file);
 }
 
+/* ================= QR Code de instalação ================= */
+function mostrarQRCode() {
+  const url = window.location.href.split("#")[0];
+  let qrHtml = "";
+  try {
+    const qr = qrcode(0, "M");
+    qr.addData(url);
+    qr.make();
+    qrHtml = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
+  } catch (err) {
+    qrHtml = '<p class="hint">Não foi possível gerar o QR Code.</p>';
+  }
+  abrirModal(
+    "Instalar no celular",
+    `
+      <div class="qr-wrap">${qrHtml}</div>
+      <p class="hint" style="text-align:center;margin-top:10px">
+        Aponte a câmera do celular para o código acima.
+        Depois, no navegador, toque em <b>"Adicionar à tela inicial"</b> para instalar o app.
+      </p>
+      <div class="qr-url">${url}</div>
+      <div class="form-row" style="margin-top:14px">
+        <button class="btn btn-outline" onclick="copiarLink('${url}')">Copiar link</button>
+        <button class="btn btn-primary" onclick="fecharModal()">Fechar</button>
+      </div>
+    `
+  );
+}
+
+function copiarLink(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(
+      () => toast("Link copiado"),
+      () => toast("Não foi possível copiar")
+    );
+  } else {
+    toast("Copie o link manualmente");
+  }
+}
+
 /* ================= Ligações de eventos ================= */
+$("#btn-qrcode").addEventListener("click", mostrarQRCode);
 $("#btn-nova-turma").addEventListener("click", novaTurma);
 $("#btn-novo-aluno").addEventListener("click", novoAluno);
 $("#btn-salvar-chamada").addEventListener("click", salvarChamada);
@@ -613,7 +654,7 @@ $("#import-file").addEventListener("change", (e) => {
 Object.assign(window, {
   navegar, fecharModal, novaTurma, editarTurma, salvarTurma, excluirTurma,
   confirmarExcluirTurma, novoAluno, editarAluno, salvarAluno, excluirAluno,
-  confirmarExcluirAluno, imprimirRelatorio,
+  confirmarExcluirAluno, imprimirRelatorio, copiarLink,
 });
 
 /* ================= Início ================= */
