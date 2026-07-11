@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="bg-background">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="description" content="Controle de frequência de aulas para professores. Offline, gratuito e sem login." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Frequência" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Frequência Escolar</title>
+</head>
+<body>
+  <header class="app-header">
+    <h1>
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Frequência Escolar
+    </h1>
+    <p class="subtitle">Controle de presença do professor - offline e gratuito</p>
+  </header>
+
+  <main>
+    <!-- INÍCIO -->
+    <section id="view-inicio" class="view active">
+      <div class="stats-row">
+        <div class="stat"><b id="stat-alunos">0</b><small>Alunos</small></div>
+        <div class="stat"><b id="stat-turmas">0</b><small>Turmas</small></div>
+        <div class="stat"><b id="stat-chamadas">0</b><small>Chamadas</small></div>
+      </div>
+      <div class="dash-grid">
+        <button class="dash-tile" data-go="alunos">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Alunos</span>
+          <small>Cadastro dos alunos</small>
+        </button>
+        <button class="dash-tile" data-go="turmas">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>Turmas</span>
+          <small>Organizar por turma</small>
+        </button>
+        <button class="dash-tile" data-go="chamada">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>Chamada</span>
+          <small>Registrar presença</small>
+        </button>
+        <button class="dash-tile" data-go="relatorios">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg>
+          <span>Relatórios</span>
+          <small>Assiduidade BNCC</small>
+        </button>
+      </div>
+      <div class="card no-print" style="margin-top:14px">
+        <h3>Dados e backup</h3>
+        <p class="hint">Todos os dados ficam salvos apenas neste dispositivo (banco local). Faça backup periodicamente.</p>
+        <div class="form-row">
+          <button class="btn btn-outline" id="btn-export">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Exportar
+          </button>
+          <button class="btn btn-outline" id="btn-import">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            Importar
+          </button>
+        </div>
+        <input type="file" id="import-file" accept="application/json" hidden />
+      </div>
+    </section>
+
+    <!-- ALUNOS -->
+    <section id="view-alunos" class="view">
+      <h2 class="view-title">Alunos</h2>
+      <button class="btn btn-primary no-print" id="btn-novo-aluno" style="margin-bottom:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Novo aluno
+      </button>
+      <div id="lista-alunos"></div>
+    </section>
+
+    <!-- TURMAS -->
+    <section id="view-turmas" class="view">
+      <h2 class="view-title">Turmas</h2>
+      <button class="btn btn-primary no-print" id="btn-nova-turma" style="margin-bottom:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nova turma
+      </button>
+      <div id="lista-turmas"></div>
+    </section>
+
+    <!-- CHAMADA -->
+    <section id="view-chamada" class="view">
+      <h2 class="view-title">Chamada</h2>
+      <div class="card no-print">
+        <div class="form-row">
+          <div>
+            <label for="chamada-turma">Turma</label>
+            <select id="chamada-turma"></select>
+          </div>
+          <div>
+            <label for="chamada-data">Data</label>
+            <input type="date" id="chamada-data" />
+          </div>
+        </div>
+        <div class="form-row" style="align-items:flex-end">
+          <div>
+            <label for="chamada-bimestre">Bimestre</label>
+            <select id="chamada-bimestre">
+              <option value="1">1º Bimestre</option>
+              <option value="2">2º Bimestre</option>
+              <option value="3">3º Bimestre</option>
+              <option value="4">4º Bimestre</option>
+            </select>
+          </div>
+          <div>
+            <label for="chamada-aulas">Aulas no dia</label>
+            <input type="number" id="chamada-aulas" min="1" max="10" value="1" />
+          </div>
+        </div>
+      </div>
+      <div class="no-print" style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-outline btn-sm" id="btn-todos-presente">Marcar todos presentes</button>
+      </div>
+      <div id="chamada-lista"></div>
+      <button class="btn btn-primary no-print" id="btn-salvar-chamada" style="margin-top:8px;display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Salvar chamada
+      </button>
+    </section>
+
+    <!-- RELATÓRIOS -->
+    <section id="view-relatorios" class="view">
+      <h2 class="view-title">Relatórios</h2>
+      <div class="card no-print">
+        <div class="form-row">
+          <div>
+            <label for="rel-turma">Turma</label>
+            <select id="rel-turma"></select>
+          </div>
+          <div>
+            <label for="rel-bimestre">Bimestre</label>
+            <select id="rel-bimestre">
+              <option value="1">1º Bimestre</option>
+              <option value="2">2º Bimestre</option>
+              <option value="3">3º Bimestre</option>
+              <option value="4">4º Bimestre</option>
+              <option value="0">Ano todo</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-gerar-rel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+          Gerar relatório
+        </button>
+      </div>
+      <div id="rel-conteudo"></div>
+    </section>
+  </main>
+
+  <div id="print-area"></div>
+
+  <nav class="bottom-nav no-print">
+    <button class="nav-btn active" data-go="inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      Início
+    </button>
+    <button class="nav-btn" data-go="alunos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Alunos
+    </button>
+    <button class="nav-btn" data-go="turmas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Turmas
+    </button>
+    <button class="nav-btn" data-go="chamada">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Chamada
+    </button>
+    <button class="nav-btn" data-go="relatorios">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg>
+      Relatórios
+    </button>
+  </nav>
+
+  <!-- Modal genérico -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h3 id="modal-title">Título</h3>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="./db.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
