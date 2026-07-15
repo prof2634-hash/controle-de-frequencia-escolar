@@ -282,6 +282,125 @@ async function confirmarExcluirAluno(id) {
   toast("Aluno excluído");
 }
 
+/* ================= IMPORTAR LISTA DE ALUNOS ================= */
+function abrirImportarAlunos() {
+  if (!TURMAS.length) {
+    return abrirModal("Crie uma turma primeiro", `
+      <p>Cadastre ao menos uma turma antes de importar uma lista de alunos.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModal()">Fechar</button>
+        <button class="btn btn-primary" onclick="fecharModal();navegar('turmas');novaTurma()">Criar turma</button>
+      </div>`);
+  }
+  abrirModal("Importar lista de alunos", `
+    <p class="hint">Selecione um arquivo <b>CSV</b> (.csv) ou de texto (.txt). Você pode exportar esse formato do Excel ou do Google Planilhas em "Salvar como CSV".</p>
+    <div class="import-help">
+      <strong>Formato esperado (uma coluna por campo):</strong>
+      <pre>Nome;Matrícula;Turma
+Ana Souza;1001;5º Ano A
+Bruno Lima;1002;5º Ano A
+Carla Dias;1003;</pre>
+      <p class="hint">Aceita vírgula (,) ou ponto e vírgula (;) como separador. Apenas o <b>Nome</b> é obrigatório. A primeira linha pode ser o cabeçalho.</p>
+    </div>
+    <label for="import-turma-padrao">Turma padrão (para alunos sem turma no arquivo)</label>
+    <select id="import-turma-padrao">${opcoesTurma(TURMAS[0]?.id)}</select>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="selecionarArquivoAlunos()">Escolher arquivo</button>
+    </div>`);
+}
+
+function selecionarArquivoAlunos() {
+  const sel = $("#import-turma-padrao");
+  window._importTurmaPadrao = sel ? sel.value : "";
+  $("#alunos-file").click();
+}
+
+// Divide uma linha CSV respeitando aspas
+function dividirLinhaCSV(linha, sep) {
+  const out = [];
+  let atual = "";
+  let aspas = false;
+  for (let i = 0; i < linha.length; i++) {
+    const c = linha[i];
+    if (c === '"') {
+      if (aspas && linha[i + 1] === '"') { atual += '"'; i++; }
+      else aspas = !aspas;
+    } else if (c === sep && !aspas) {
+      out.push(atual);
+      atual = "";
+    } else {
+      atual += c;
+    }
+  }
+  out.push(atual);
+  return out.map((s) => s.trim());
+}
+
+function parseCSVAlunos(texto) {
+  const linhas = texto
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length);
+  if (!linhas.length) return [];
+
+  // detecta separador pela primeira linha
+  const sep = (linhas[0].match(/;/g) || []).length >= (linhas[0].match(/,/g) || []).length ? ";" : ",";
+
+  // detecta cabeçalho
+  const primeira = dividirLinhaCSV(linhas[0], sep).map((c) => c.toLowerCase());
+  const temCabecalho = primeira.some((c) =>
+    ["nome", "aluno", "matrícula", "matricula", "turma"].includes(c)
+  );
+  const corpo = temCabecalho ? linhas.slice(1) : linhas;
+
+  return corpo.map((l) => {
+    const col = dividirLinhaCSV(l, sep);
+    return { nome: col[0] || "", matricula: col[1] || "", turma: col[2] || "" };
+  }).filter((r) => r.nome);
+}
+
+async function importarAlunosArquivo(file) {
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const registros = parseCSVAlunos(String(reader.result));
+      if (!registros.length) {
+        fecharModal();
+        return toast("Nenhum aluno encontrado no arquivo");
+      }
+      const turmaPadrao = window._importTurmaPadrao || "";
+      let novos = 0;
+      for (const r of registros) {
+        // tenta casar turma pelo nome; senão usa a turma padrão
+        let turmaId = turmaPadrao;
+        if (r.turma) {
+          const t = TURMAS.find(
+            (x) => x.nome.toLowerCase() === r.turma.toLowerCase()
+          );
+          if (t) turmaId = t.id;
+        }
+        await DB.put("alunos", {
+          id: DB.uid(),
+          nome: r.nome,
+          matricula: r.matricula || "",
+          turmaId,
+        });
+        novos++;
+      }
+      await carregarTudo();
+      fecharModal();
+      renderAlunos();
+      toast(`${novos} aluno(s) importado(s)`);
+    } catch (err) {
+      fecharModal();
+      toast("Não foi possível ler o arquivo");
+    }
+  };
+  reader.readAsText(file, "UTF-8");
+}
+
 /* ================= CHAMADA ================= */
 function prepararChamada() {
   const sel = $("#chamada-turma");
@@ -641,6 +760,11 @@ function copiarLink(url) {
 $("#btn-qrcode").addEventListener("click", mostrarQRCode);
 $("#btn-nova-turma").addEventListener("click", novaTurma);
 $("#btn-novo-aluno").addEventListener("click", novoAluno);
+$("#btn-importar-alunos").addEventListener("click", abrirImportarAlunos);
+$("#alunos-file").addEventListener("change", (e) => {
+  if (e.target.files[0]) importarAlunosArquivo(e.target.files[0]);
+  e.target.value = "";
+});
 $("#btn-salvar-chamada").addEventListener("click", salvarChamada);
 $("#btn-gerar-rel").addEventListener("click", gerarRelatorio);
 $("#btn-export").addEventListener("click", exportarDados);
@@ -655,6 +779,7 @@ Object.assign(window, {
   navegar, fecharModal, novaTurma, editarTurma, salvarTurma, excluirTurma,
   confirmarExcluirTurma, novoAluno, editarAluno, salvarAluno, excluirAluno,
   confirmarExcluirAluno, imprimirRelatorio, copiarLink,
+  abrirImportarAlunos, selecionarArquivoAlunos,
 });
 
 /* ================= Início ================= */
