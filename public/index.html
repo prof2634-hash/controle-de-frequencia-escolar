@@ -68,6 +68,15 @@
         </div>
         <input type="file" id="import-file" accept="application/json" hidden />
       </div>
+
+      <div class="card no-print" style="margin-top:14px">
+        <h3>Instalar no celular</h3>
+        <p class="hint">Aponte a câmera do celular para o QR Code para abrir o app e depois use "Adicionar à tela inicial" para instalar.</p>
+        <button class="btn btn-outline" id="btn-qrcode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 17h.01M17 21h4v-4"/></svg>
+          Mostrar QR Code
+        </button>
+      </div>
     </section>
 
     <!-- ALUNOS -->
@@ -194,6 +203,7 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="./vendor/qrcode.js"></script>
   <script src="./db.js"></script>
   <script src="./app.js"></script>
 </body>
