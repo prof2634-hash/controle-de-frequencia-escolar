@@ -601,30 +601,6 @@ td.num, th.num { text-align: center; }
 
 #print-area { display: none; }
 
-/* Importar lista */
-.import-help {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  margin: 8px 0 14px;
-}
-.import-help strong {
-  font-size: 0.82rem;
-}
-.import-help pre {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px;
-  margin: 8px 0;
-  font-size: 12px;
-  line-height: 1.5;
-  overflow-x: auto;
-  white-space: pre;
-  color: var(--text);
-}
-
 /* QR Code */
 .qr-wrap {
   display: flex;
